@@ -20,13 +20,22 @@ at the bottom).
 
 ## Step 1 — Get a fresh token (do this every time auth fails)
 
+**Important:** Use `ConvertTo-Json` for the request body — manual JSON string escaping can fail.
+
 ```powershell
 # From anywhere — reads the admin password from secrets
 $j = Get-Content C:\Users\ben\source\repos\sillygooseia-corp\secrets\npm-registry.json | ConvertFrom-Json
 $a = ($j.users | Where-Object username -eq 'admin')
 
 # Call Verdaccio's CouchDB login endpoint — returns a fresh JWT
-$body = "{`"name`":`"admin`",`"password`":`"$($a.password)`",`"email`":`"admin@sillygooseia.com`",`"type`":`"user`"}"
+# Use PowerShell object → ConvertTo-Json for proper formatting
+$body = @{
+    name = 'admin'
+    password = $a.password
+    email = 'admin@sillygooseia.com'
+    type = 'user'
+} | ConvertTo-Json -Compress
+
 $resp = Invoke-RestMethod -Uri "https://npm.sillygooseia.com/-/user/org.couchdb.user:admin" -Method PUT -ContentType "application/json" -Body $body
 $token = $resp.token
 Write-Host "Token: $token"
