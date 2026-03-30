@@ -1,0 +1,79 @@
+{
+  "name": "@epheme/core",
+  "version": "0.1.2",
+  "description": "Shared middleware, utilities, and browser SDK for the Epheme device-authorization SDK",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sillygooseia/epheme"
+  },
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./rateLimiter": "./rateLimiter.js",
+    "./mailer": "./mailer.js",
+    "./metrics": "./metrics.js",
+    "./licenseMiddleware": "./licenseMiddleware.js",
+    "./deviceRegistry": "./deviceRegistry.js",
+    "./pluginHost": "./pluginHost.js",
+    "./db": "./db/pluginDb.js",
+    "./browser": {
+      "import": "./dist/browser/index.js",
+      "require": "./dist/browser/index.js",
+      "types": "./dist/browser/index.d.ts"
+    },
+    "./browser/idb": {
+      "import": "./dist/browser/idb.js",
+      "require": "./dist/browser/idb.js",
+      "types": "./dist/browser/idb.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "browser": [
+        "./dist/browser/index.d.ts"
+      ],
+      "browser/idb": [
+        "./dist/browser/idb.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "index.js",
+    "rateLimiter.js",
+    "mailer.js",
+    "metrics.js",
+    "licenseMiddleware.js",
+    "deviceRegistry.js",
+    "pluginHost.js",
+    "db/**/*",
+    "dist/browser/**/*"
+  ],
+  "scripts": {
+    "build": "tsc -p browser/tsconfig.build.json",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.2",
+    "semver": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    },
+    "nodemailer": {
+      "optional": true
+    },
+    "better-sqlite3": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
+  }
+}

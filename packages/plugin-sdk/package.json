@@ -1,0 +1,32 @@
+{
+  "name": "@epheme/plugin-sdk",
+  "version": "0.1.0",
+  "description": "Type definitions and contracts for Epheme plugin authors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sillygooseia/epheme"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "@epheme/core": "*"
+  }
+}
