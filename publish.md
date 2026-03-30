@@ -134,27 +134,15 @@ helm upgrade npm-registry ./infra/helm/npm-registry `
 kubectl rollout status deployment/npm-registry -n npm-registry --timeout=60s
 ```
 
-After any Helm upgrade or pod restart, **re-run Step 1** to get a fresh token.
+After any Helm upgrade or pod restart, you'll need to get a fresh token **only if this
+is your first login after enabling the stable secret**. Once you have a token issued
+with the stable `VERDACCIO_SECRET` in place, it will last 365 days.
 
 ---
 
-## TODO — eliminate the token-expiry problem permanently
+## DONE — token expiry problem solved
 
-Add a fixed `SECRET` env var to the Verdaccio deployment so tokens survive pod
-restarts. In `infra/helm/npm-registry/values.yaml`, add to the `config` block:
+~~TODO — eliminate the token-expiry problem permanently~~
 
-```yaml
-config: |
-  ...
-  security:
-    api:
-      jwt:
-        sign:
-          expiresIn: 365d
-    web:
-      sign:
-        expiresIn: 365d
-```
-
-And mount a stable secret as `VERDACCIO_SECRET` in the Deployment. Once done, a
-single `npm login` token will last a year without requiring Step 1.
+**COMPLETED**: Added a fixed `VERDACCIO_SECRET` env var to the Verdaccio deployment and
+configured JWT expiry to 365 days. Tokens now survive pod restarts.
