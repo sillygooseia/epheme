@@ -1,12 +1,12 @@
 /**
- * createBafgoClient — top-level convenience factory for the BafGo browser SDK.
+ * createEphemeClient — top-level convenience factory for the Epheme browser SDK.
  *
  * Wraps EphemeDeviceController, EphemeHubSync, EphemeLicense, and IdbDatabase
  * behind a single initialisation point so tools don't need to wire up each
  * controller individually.
  *
  * Usage:
- *   const bafgo = createBafgoClient();
+ *   const bafgo = createEphemeClient();
  *   await bafgo.init();                        // device.load()
  *   bafgo.device.isRegistered                  // bool
  *   bafgo.redirectToHub()                      // → Hub device registration

@@ -48,9 +48,9 @@ Adjust the relative path to match your tool's depth inside the monorepo.
 
 ```typescript
 import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
-import { createBafgoClient } from '@epheme/core/browser';
+import { createEphemeClient } from '@epheme/core/browser';
 
-const bafgo = createBafgoClient();
+const bafgo = createEphemeClient();
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -90,21 +90,21 @@ Validate the JWT in your Express backend using `licenseMiddleware` from `@epheme
 
 ## API reference
 
-### `createBafgoClient(opts?)`
+### `createEphemeClient(opts?)`
 
 ```typescript
-createBafgoClient(opts?: { hubUrl?: string }): BafgoClient
+createEphemeClient(opts?: { hubUrl?: string }): EphemeClient
 ```
 
 Creates a client instance. Pass `hubUrl` to override the default Hub URL
 (defaults to `<origin>/hub`, or `localhost:8080/hub` in local dev).
 
-Returns a `BafgoClient` with:
+Returns an `EphemeClient` with:
 
 | Property / Method | Type | Description |
 |---|---|---|
 | `device` | `EphemeDeviceController` | Device identity state and loader |
-| `sync` | `BafgoHubSync` | Hub KV push/pull/delete |
+| `sync` | `EphemeHubSync` | Hub KV push/pull/delete |
 | `init()` | `() => Promise<void>` | Bootstrap — call once on app start |
 | `redirectToHub(returnTo?)` | `(path?: string) => void` | Redirect to Hub device registration |
 | `buildHubUrl(returnTo?)` | `(path?: string) => string` | Build Hub registration URL without redirecting |
