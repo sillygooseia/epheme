@@ -1,5 +1,5 @@
 /**
- * BafgoDb — internal interface implemented by both the SQLite and Postgres adapters.
+ * EphemeDb — internal interface implemented by both the SQLite and Postgres adapters.
  * This mirrors PluginDb from @epheme/plugin-sdk exactly, plus the internal
  * lifecycle methods the plugin host needs.
  *
@@ -9,12 +9,12 @@
 'use strict';
 
 /**
- * Create a SQLite-backed BafgoDb for a specific plugin.
+ * Create a SQLite-backed EphemeDb for a specific plugin.
  *
  * @param {object} options
  * @param {string} options.pluginId   - Used to scope the migrations table and log prefix
  * @param {string} options.file       - Path to the SQLite database file
- * @returns {BafgoDbInstance}
+ * @returns {EphemeDbInstance}
  */
 function createSqliteDb({ pluginId, file }) {
   // Lazy-require so hosts that only use Postgres never load better-sqlite3
@@ -25,7 +25,7 @@ function createSqliteDb({ pluginId, file }) {
 
   // Migrations tracking table (one per plugin, scoped by pluginId in the filename)
   db.exec(`
-    CREATE TABLE IF NOT EXISTS _bafgo_migrations (
+    CREATE TABLE IF NOT EXISTS _epheme_migrations (
       idx     INTEGER PRIMARY KEY,
       applied INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
     )
@@ -63,12 +63,12 @@ function createSqliteDb({ pluginId, file }) {
 
   async function migrate(steps) {
     const applied = new Set(
-      db.prepare('SELECT idx FROM _bafgo_migrations').all().map(r => r.idx)
+      db.prepare('SELECT idx FROM _epheme_migrations').all().map(r => r.idx)
     );
     for (let i = 0; i < steps.length; i++) {
       if (applied.has(i)) continue;
       db.exec(steps[i]);
-      db.prepare('INSERT INTO _bafgo_migrations (idx) VALUES (?)').run(i);
+      db.prepare('INSERT INTO _epheme_migrations (idx) VALUES (?)').run(i);
     }
   }
 
@@ -81,12 +81,12 @@ function createSqliteDb({ pluginId, file }) {
 }
 
 /**
- * Create a Postgres-backed BafgoDb for a specific plugin.
+ * Create a Postgres-backed EphemeDb for a specific plugin.
  *
  * @param {object} options
  * @param {string} options.pluginId   - Used to scope the migrations table
  * @param {string} options.url        - Postgres connection string
- * @returns {BafgoDbInstance}
+ * @returns {EphemeDbInstance}
  */
 function createPostgresDb({ pluginId, url }) {
   // Lazy-require so hosts that only use SQLite never load pg
@@ -99,7 +99,7 @@ function createPostgresDb({ pluginId, url }) {
   async function ensureMigrationTable(client) {
     if (migrationTableReady) return;
     await client.query(`
-      CREATE TABLE IF NOT EXISTS _bafgo_migrations (
+      CREATE TABLE IF NOT EXISTS _epheme_migrations (
         plugin_id TEXT NOT NULL,
         idx       INTEGER NOT NULL,
         applied   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -156,7 +156,7 @@ function createPostgresDb({ pluginId, url }) {
       await client.query('BEGIN');
       await ensureMigrationTable(client);
       const { rows: applied } = await client.query(
-        'SELECT idx FROM _bafgo_migrations WHERE plugin_id = $1',
+        'SELECT idx FROM _epheme_migrations WHERE plugin_id = $1',
         [pluginId]
       );
       const appliedSet = new Set(applied.map(r => r.idx));
@@ -164,7 +164,7 @@ function createPostgresDb({ pluginId, url }) {
         if (appliedSet.has(i)) continue;
         await client.query(translatePlaceholders(steps[i]));
         await client.query(
-          'INSERT INTO _bafgo_migrations (plugin_id, idx) VALUES ($1, $2)',
+          'INSERT INTO _epheme_migrations (plugin_id, idx) VALUES ($1, $2)',
           [pluginId, i]
         );
       }
