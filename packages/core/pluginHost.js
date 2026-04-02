@@ -108,7 +108,7 @@ async function createPluginHost(app, options = {}) {
           await plugin.onShutdown?.();
           await ctx._db?.close?.();
         } catch (err) {
-          console.error(`[plugin:${pluginId}] error during shutdown:`, err);
+          ctx.logger.error({ err }, 'error during shutdown');
         }
       }
     },
@@ -277,12 +277,8 @@ function buildFilteredHub({ pluginId, eventBus, declaredHubEvents }) {
 // ---------------------------------------------------------------------------
 
 function buildLogger(pluginId) {
-  const prefix = `[plugin:${pluginId}]`;
-  return {
-    info:  (msg, ...args) => console.log(prefix, msg, ...args),
-    warn:  (msg, ...args) => console.warn(prefix, msg, ...args),
-    error: (msg, ...args) => console.error(prefix, msg, ...args),
-  };
+  const { createLogger } = require('./logger');
+  return createLogger({ service: 'plugin-host', component: pluginId });
 }
 
 module.exports = { createPluginHost };

@@ -19,4 +19,5 @@ module.exports = {
   deviceRegistry:   require('./deviceRegistry'),
   pluginHost:       require('./pluginHost'),
   db:               require('./db/pluginDb'),
+  logger:           require('./logger'),
 };

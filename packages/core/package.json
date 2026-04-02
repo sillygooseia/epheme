@@ -1,6 +1,6 @@
 {
   "name": "@epheme/core",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Shared middleware, utilities, and browser SDK for the Epheme device-authorization SDK",
   "license": "MIT",
   "repository": {
@@ -16,6 +16,7 @@
     "./licenseMiddleware": "./licenseMiddleware.js",
     "./deviceRegistry": "./deviceRegistry.js",
     "./pluginHost": "./pluginHost.js",
+    "./logger": "./logger.js",
     "./db": "./db/pluginDb.js",
     "./browser": {
       "import": "./dist/browser/index.js",
@@ -46,20 +47,27 @@
     "licenseMiddleware.js",
     "deviceRegistry.js",
     "pluginHost.js",
+    "logger.js",
     "db/**/*",
     "dist/browser/**/*"
   ],
   "scripts": {
     "build": "tsc -p browser/tsconfig.build.json",
-    "prepublishOnly": "npm run build"
+    "test": "node --test \"test/**/*.test.js\"",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "devDependencies": {
+    "pino": "^9.14.0",
+    "pino-http": "^10.5.0",
+    "pino-pretty": "^11.3.0",
     "typescript": "^5.4.0"
   },
   "peerDependencies": {
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.2",
+    "pino": "^9.0.0",
+    "pino-http": "^10.0.0",
     "semver": "^7.0.0"
   },
   "peerDependenciesMeta": {
@@ -73,6 +81,15 @@
       "optional": true
     },
     "pg": {
+      "optional": true
+    },
+    "pino": {
+      "optional": true
+    },
+    "pino-http": {
+      "optional": true
+    },
+    "pino-pretty": {
       "optional": true
     }
   }
