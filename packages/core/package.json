@@ -1,6 +1,6 @@
 {
   "name": "@epheme/core",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Shared middleware, utilities, and browser SDK for the Epheme device-authorization SDK",
   "license": "MIT",
   "repository": {

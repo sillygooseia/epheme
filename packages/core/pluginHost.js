@@ -43,6 +43,7 @@ async function createPluginHost(app, options = {}) {
   const {
     redis         = null,
     licensePublicKeyPem = null,
+    tenantLicenseClaims = null,
     eventBus      = null,
     db: dbOptions = null,
     plugins       = [],
@@ -85,6 +86,7 @@ async function createPluginHost(app, options = {}) {
       pluginId,
       redis,
       licensePublicKeyPem,
+      tenantLicenseClaims,
       eventBus,
       dbOptions,
       declaredHubEvents: manifest?.hubEvents ?? [],
@@ -117,7 +119,7 @@ async function createPluginHost(app, options = {}) {
 // Internal: build a PluginContext for one plugin
 // ---------------------------------------------------------------------------
 
-function buildPluginContext({ pluginId, redis, licensePublicKeyPem, eventBus, dbOptions, declaredHubEvents }) {
+function buildPluginContext({ pluginId, redis, licensePublicKeyPem, tenantLicenseClaims, eventBus, dbOptions, declaredHubEvents }) {
   const router = express.Router();
 
   // --- KV ---
@@ -155,6 +157,19 @@ function buildPluginContext({ pluginId, redis, licensePublicKeyPem, eventBus, db
         requiredFeatures: [feature],
         attachProperty:   'licensePayload',
       });
+    },
+    tenantHasFeature(feature) {
+      if (!tenantLicenseClaims) return false;
+      const f = tenantLicenseClaims.features;
+      if (!f) return false;
+      // Features may be stored as an object map (bool) or an array of strings.
+      return Array.isArray(f) ? f.includes(feature) : f[feature] === true;
+    },
+    requireTenantFeature(feature) {
+      return (_req, res, next) => {
+        if (this.tenantHasFeature(feature)) return next();
+        return res.status(403).json({ error: `Feature '${feature}' is not enabled for this tenant.` });
+      };
     },
   };
 
