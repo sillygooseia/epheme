@@ -55,6 +55,48 @@ export class EphemeDevice {
     }
   }
 
+  /**
+   * Returns a stable device identifier regardless of Hub registration status.
+   *
+   * Priority:
+   *   1. An existing value stored under `fallbackKey` in localStorage — preserves
+   *      identity continuity if the device was previously anonymous. This prevents
+   *      a device from appearing as a new identity after Hub registration.
+   *   2. Hub-loaded deviceId (from load()) — used when no prior local identity exists
+   *   3. A newly generated anonymous UUID written to localStorage under `fallbackKey`
+   *
+   * If the device carries an active Hub JWT, callers should use `jwt` directly
+   * via `Authorization: Bearer` instead of calling this method.
+   *
+   * Call after load(). Tools should pass a namespaced key, e.g. `'mytool:device-id'`.
+   */
+  getStableId(fallbackKey: string): string {
+    // Prefer an already-established local identity to avoid switching IDs mid-session
+    // (e.g. voting anonymously then connecting Hub would otherwise orphan the prior vote).
+    const existing = localStorage.getItem(fallbackKey);
+    if (existing) return existing;
+
+    // No prior local identity — use Hub deviceId if available
+    if (this._credential?.deviceId) {
+      localStorage.setItem(fallbackKey, this._credential.deviceId);
+      return this._credential.deviceId;
+    }
+
+    // Generate a fresh anonymous UUID and persist it
+    const id =
+      (globalThis.crypto?.randomUUID?.() ??
+        (() => {
+          const b = new Uint8Array(16);
+          (globalThis.crypto?.getRandomValues ?? ((arr: Uint8Array) => arr.map(() => Math.floor(Math.random() * 256))))(b);
+          b[6] = (b[6] & 0x0f) | 0x40;
+          b[8] = (b[8] & 0x3f) | 0x80;
+          const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+          return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+        })());
+    localStorage.setItem(fallbackKey, id);
+    return id;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private _readFromIdb(): Promise<EphemeDeviceCredential | null> {

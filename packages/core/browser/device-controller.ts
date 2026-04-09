@@ -37,6 +37,15 @@ export class EphemeDeviceController {
     return this._core.displayName;
   }
 
+  /**
+   * Returns a stable device identifier regardless of Hub registration status.
+   * Delegates to EphemeDevice.getStableId(). Call after load().
+   * Pass a namespaced localStorage key, e.g. `'mytool:device-id'`.
+   */
+  getStableId(fallbackKey: string): string {
+    return this._core.getStableId(fallbackKey);
+  }
+
   async load(): Promise<void> {
     await this._core.load();
     this._loaded = true;
